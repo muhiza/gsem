@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+<script>
+{% block jquery %}
+
+
+
+$(function(){
+    $('.rating-select .btn').on('mouseover', function(){
+        $(this).removeClass('btn-default').addClass('btn-warning');
+        $(this).prevAll().removeClass('btn-default').addClass('btn-warning');
+        $(this).nextAll().removeClass('btn-warning').addClass('btn-default');
+    });
+
+    $('.rating-select').on('mouseleave', function(){
+        active = $(this).parent().find('.selected');
+        if(active.length) {
+            active.removeClass('btn-default').addClass('btn-warning');
+            active.prevAll().removeClass('btn-default').addClass('btn-warning');
+            active.nextAll().removeClass('btn-warning').addClass('btn-default');
+        } else {
+            $(this).find('.btn').removeClass('btn-warning').addClass('btn-default');
+        }
+    });
+
+    $('.rating-select .btn').click(function(){
+        if($(this).hasClass('selected')) {
+            $('.rating-select .selected').removeClass('selected');
+        } else {
+            $('.rating-select .selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    });
+});
+
+function setPrice(){
+	var price = $(".variation_select option:selected").attr("data-price")
+
+	var sale_price = $(".variation_select option:selected").attr("data-sale-price")
+	if (sale_price != "" && sale_price != "None" && sale_price != null ) {
+	$("#price").html("<h3>" + sale_price + " <small class='og-price'>" + price  + "</small></h3>");
+	} else {
+	$("#price").html(price);
+	}
+}
+setPrice()
+
+$(".variation_select").change(function(){
+	setPrice()
+	// var img = $(".variation_select option:selected").attr("data-img")
+	// $("img").attr("src", img);
+
+})
+
+
+
+// ajax add to cart
+
+$("#submit-btn").click(function(event){
+	event.preventDefault();
+	var formData = $("#add-form").serialize();
+	console.log(formData);
+	$.ajax({
+		type: "GET", // "POST"
+		url: "{% url 'cart' %}",
+		data: formData,
+		success: function(data) {
+			showFlashMessage(data.flash_message);
+			updateCartItemCount();
+		}, 
+		error: function(response, error) {
+			// console.log(response)
+			// console.log(error)
+			$("#add-form").submit()
+		}
+	})
+
+	// $("#add-form").submit()
+
+})
+
+
+
+{% endblock %}
+</script>
+
+
+{% block content %}
+
+
+<div class='row'>
+
+<div class='col-sm-8'>
+<h2><b>{{ object.title }}</b></h2>
+
+{% if object.get_image_url %}
+<div>
+<a href='{{ product.get_absolute_url }}'><img id='img' style="height:350px; width: 300px;" class='img-responsive' src='{{ product.get_image_url }}' /> </a> <br>
+</div>
+
+
+<div>
+<a href="{{ object.get_pdf_doc_url }}" target="_blank"><img id='img' class='img-responsive'
+
+ src='{{ documents.pdf_doc.name }}' /> </a> <br>
+</div>
+
+
+
+{% endif %}
+<h3><b>Book Descriptions </b></h3><hr>
+<p>
+{{ object.description }}
+</p> <hr>
+<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">Preview</button>
+
+{% if request.user.is_authenticated %}
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#"><a href="{{ object.get_documents_url }}" src='{{ object.get_documents_url }}' target="_blank">Download </a></button>
+
+{% else %}
+
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#"> <a href="{% url 'auth_login' %}" src="{{ object.get_docfile_url }}">Download </a></button>
+
+{% endif %}
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+    <
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h3 class="modal-title text-center">The Shallows Summary
+</h3>
+        </div>
+        <div class="modal-body">
+          <p>In 2008, Nicholas Carr’s article in Atlantic Monthly brought to the surface a creeping feeling that many people have begun to voice – have our brains been acting differently as a result of the time we’ve been spending on the internet? Carr contended that our thoughts, mental processes, and even physical brains are actually being restructured.
+
+ <br><br>
+
+The article struck a chord, and he went on to write The Shallows, which explored this phenomenon in the detail it deserves and became a New York Times bestseller and Pulitzer finalist. Referring to the environmental book by Rachel Carson that first alerted the world to the dangers of pesticides, bringing societal upheaval and the creation of the United States’ environmental protection agency, Slate called the book a “Silent Spring” for the mind.
+
+<br><br>
+<h2> Prologue </h2> <br>
+
+In his 1964 book Understanding Media: The Extensions of Man, Marshall McLuhan prophesied that society would suffer from a loss of ability to engage in “linear thinking” because of the electric media (radio, telephones, and TV) that were proliferating at that time. What he did not foresee was the advent of the internet, which exponentially expanded the effect he predicted.
+<br><br>
+
+<h2> Chapter 1: Hal and Me </h2> <br>
+
+In the movie 2001: A Space Odyssey, the supercomputer HAL attempts to kill the human astronauts he has been working with. In response, an astronaut begins unplugging HAL, prompting the computer to lament, “My mind is going!”
+<br><br>
+
+<h2> Chapter 2: The Vital Paths </h2> <br>
+
+Even before the internet came along, there have been examples of methodology shaping the mind. Due to his health complications, writer Frederich Nietzshe would get severe headaches and nausea as a result of trying to sustain focus on his writing for long periods of time. To cope, he replaced pen and paper with a typewriter. The typewriter alleviated the strain, allowing him to write again, but the keyboard changed his writing style. His papers had become tighter and more “telegraphic.”
+
+<h2> Chapter 3: Tools of the Mind </h2> <br>
+
+We usually assume that whatever we choose to do is a personal choice, but in reality, it is often the tools we use that direct our thoughts and behavior. Consider, for example, the clock. Life without clocks is difficult to imagine, but for thousands of years most societies had no need to use the precise time of day to direct their activities. Standardization of time only began to spread after a decree that monks pray at specific times each day.
+</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">For more</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Add to Cart</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+<h3><b>Customer Reviews </b></h3>
+<div class="rating-select">
+    <div class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star-empty"></span></div>
+    <div class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star-empty"></span></div>
+    <div class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star-empty"></span></div>
+    <div class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star-empty"></span></div>
+    <div class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star-empty"></span></div>
+</div> <br><br>
+
+<!-- Centered Tabs -->
+
+
+<!-- Centered Pills -->
+<h3> Stats </h3>
+<ul class="nav nav-pills">
+  <li class="active"><a href="#">(10k) Downloads</a></li>
+  <li><a href="#">(30k) Viewers</a></li>
+  <li><a href="#">(13k) Comments</a></li>
+  <li><a href="#">(50k) Likes</a></li>
+</ul>
+<hr>
+<br>
+
+<div id="disqus_thread"></div>
+<script>
+
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+    this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = '//s-e-m.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by .</a></noscript>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Product Sidebar -->
+<div class='col-sm-4'>
+
+<form id='add-form' method='GET' action="{% url 'cart' %}">
+<p id='jquery-message' class='lead'>
+
+</p>
+
+
+	{% if object.variation_set.count > 1 %}
+	<h3 id='price'>{{ object.variation_set.first.price }}</h3>
+
+	<select name='item' class='form-control variation_select'>
+		{% for vari_obj in object.variation_set.all %}
+		<!-- <option data-img="http://www.spirit1059.com/pics/Feeds/Articles/2015611/118317/Beach.jpg" data-price="{{ vari_obj.price }}" value="{{ vari_obj.id }}">{{ vari_obj }}</option> -->
+		<option  data-sale-price="{{ vari_obj.sale_price }}" data-price="{{ vari_obj.price }}" value="{{ vari_obj.id }}">{{ vari_obj }}</option>
+		{% endfor %}
+		</select>
+
+	{% else %}
+		<input type="hidden" name='item' value='{{ object.variation_set.first.id }}' />
+			<h3 id='price'>{% if object.variation_set.first.sale_price %}
+			{{ object.variation_set.first.sale_price  }}
+			<small class='og-price'>{{ object.variation_set.first.price }}</small>
+			{% else %}
+			
+			{{ object.variation_set.first.price }} frw
+			{% endif %}
+		</h3>
+
+
+	{% endif %}
+	<br/>
+	<input class='form-control' type='number' name='qty' value='1' />
+<br/>
+<input id='submit-btn' type='submit' value='Add to Cart' class='btn btn-default' />
+</form>
+<hr/>
+<p class="lead"><b>
+Share<br/>
+<a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}">
+<i class="fa fa-facebook-square fa-3x"></i></a>
+
+<a href="#">
+<i class="fa fa-twitter-square fa-3x"></i></a>
+
+
+<a href="#">
+<i class="fa fa-google-plus-square fa-3x"></i></a>
+
+
+<a href="#">
+<i class="fa fa-pinterest-square fa-3x"></i></a>
+</b></p>
+<hr/>
+<h4><b>Related Books</b></h4> <hr>
+
+	<div class='row'>
+	{% for product in related %}
+
+		<div class='col-xs-6'>
+			{% include "products/product_thumbnail.html" with product=product price="True" %}
+		</div>
+		{% cycle '' '</div><div class="row">' %}
+	{% endfor %}
+
+		</div>
+
+
+</div>
+<!-- End Product Sidebar -->
+
+
+
+
+</div>
+
+
+
+{% endblock %}

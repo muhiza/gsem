@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{% block head_title %}Welcome | {{ block.super }}{% endblock %}
+<style>
+
+
+
+
+
+{% block style %}
+
+.navbar-static-top {
+	margin-bottom: 3000px !important;
+  height: 3000px;
+}
+
+.jumbotron {
+	{% if featured_image.make_image_background %} 
+	background-image: url("https://images2.alphacoders.com/261/thumb-1920-26102.jpg");
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position-y: -110px;
+
+	{% endif %}
+}
+
+
+/* GLOBAL STYLES */
+/* Padding below the footer and lighter body text */
+
+
+    /* CUSTOMIZE THE NAVBAR
+    -------------------------------------------------- */
+
+
+
+    /* CUSTOMIZE THE CAROUSEL
+    -------------------------------------------------- */
+
+    /* Carousel base class */
+
+
+    .carousel-control {
+      height: 0px;
+      margin-top: 50;
+      margin-bottom: -60px;
+
+      font-size: 120px;
+      margin-right: -90px;
+      margin-left: -90px;
+
+      text-shadow: 0 1px 1px rgba(0,0,0,.4);
+      background-color: transparent;
+      border: 0;
+      z-index: 10;
+    }
+
+    .carousel .item {
+      height: 350px;
+    }
+
+      .carousel-caption {
+        width: 65%;
+        padding: 0 70px;
+        margin-top: 100px;
+      }
+      .carousel-caption h1 {
+        font-size: 10px;
+      }
+      .carousel-caption .lead,
+      .carousel-caption .btn {
+        font-size: 18px;
+      }
+
+    .carousel-caption {
+      background-color: transparent;
+      position: static;
+      max-width: 850px;
+      padding: 0 20px;
+      margin-top: 200px;
+    }
+
+
+ 
+    .carousel {
+      margin-bottom: 60px;
+    }
+
+    .carousel .container {
+      position: relative;
+      z-index: 9;
+    }
+
+
+    .carousel-caption {
+        width: 65%;
+        padding: 0 70px;
+        margin-top: 100px;
+      }
+      .carousel-caption h1 {
+        font-size: 30px;
+      }
+      .carousel-caption .lead,
+      .carousel-caption .btn {
+        font-size: 18px;
+      }
+
+
+    /* MARKETING CONTENT
+    -------------------------------------------------- */
+
+    /* Center align the text within the three columns below the carousel */
+
+    /* Featurettes
+    ------------------------- */
+
+
+
+    /* RESPONSIVE CSS
+    -------------------------------------------------- */
+    }
+
+
+{% endblock %}
+</style>
+
+<script>
+{% block jquery %}
+$(".item-qty").change(function(){
+  // $(this).next(".btn-update").fadeIn();
+
+  // event.preventDefault();
+  // .prev(h1)
+  var item = $(this).prev("input[type='hidden']").val();
+  var qty = $(this).val()
+  var data = {
+    item: item,
+    qty: qty
+  }
+  console.log(data);
+  $.ajax({
+    type: "GET", // "POST"
+    url: "{% url 'cart' %}",
+    data: data,
+    success: function(data) {
+      $("#jquery-message").text("Added " + data.item_added + " Deleted " + data.deleted)
+      if (data.deleted){
+        $("#item-"+item).fadeOut();
+        $("#subtotal").text(data.subtotal);
+        $("#taxtotal").text(data.tax_total);
+        $("#carttotal").text(data.cart_total);
+      } else {
+        $("#item-line-total-"+item).text(data.line_total);
+        $("#subtotal").text(data.subtotal);
+        $("#taxtotal").text(data.tax_total);
+        $("#carttotal").text(data.cart_total);
+      }
+
+      if (data.total_items == 0 ) {
+        $(".table").fadeOut()
+        var template = "{% include 'carts/empty_cart.html' %}";
+        $(".main-content").html(template);
+
+      }
+
+      var message = ""
+      if (data.item_added) {
+        message = "New item added"
+      } else if (data.deleted){
+        message = "Item removed"
+      } else {
+        message = "Item updated"
+      }
+      showFlashMessage(message);
+      updateCartItemCount()
+      }, 
+    error: function(response, error) {
+      // console.log(response)
+      // console.log(error)
+      $("#add-form").submit()
+    }
+  })
+
+
+});
+
+{% endblock %}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+     
+{% block jumbotron %}
+
+	{% if featured_image %}
+
+
+
+
+		<div class="jumbotron" >
+		 <div class="container">
+			<div class="row">
+
+
+            <!-- Carousel
+    ================================================== -->
+    <div id="myCarousel" class="carousel slide">
+      <div class="carousel-inner">
+        <div class="item active">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1><b>{{ featured_image.product.title }}</b></h1>
+        <p>{{ featured_image.product.description }}</p>
+        <p>
+        <a class="btn btn-lg btn-primary" href="{{ featured_image.product.get_absolute_url }}" role="button">More Details </a>
+        </p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1><b>{{ featured_image.product.title }}</b></h1>
+        <p>{{ featured_image.product.description }}</p>
+        <p>
+        <a class="btn btn-lg btn-primary" href="{{ featured_image.product.get_absolute_url }}" role="button">More Details </a>
+        </p>
+            </div>
+          </div>
+        </div>
+        </div>
+
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev">‹</a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next">›</a>
+        </div>
+        </div>
+
+
+
+
+
+				<div class='col-sm-12 text-center {% if featured_image.text_right %} pull-right {% endif %}'>
+				</div>
+				{% if not featured_image.make_images_background %} 
+				<div class='col-sm-6' >
+					<img src="{{ featured_images.images.url }}" class='img-responsive' />
+		 		</div>
+		 		{% endif %}
+				</div>
+			</div>
+		 </div>
+
+
+	{% else %}
+	<div class="jumbotron">
+	 <div class="container">
+		<div class="row">
+			<div class='col-sm-6'>
+			<h1>Try Django 1.8</h1>
+			<p>The MVP Landing project is designed to get your project started. The goal is to help you launch as soon as possible with the least amount of investment using time or money. Join Us today.</p>
+			<p>
+			<a class="btn btn-lg btn-primary" href="" role="button">Join Us &raquo;</a>
+			</p>
+			</div>
+			<div class='col-sm-6' >
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/2uLYO1LUf6Q" frameborder="0" allowfullscreen></iframe>
+
+	 		</div>
+			</div>
+		</div>
+	 </div>
+
+	 {% endif %}
+
+
+{% endblock %}
+
+
+
+
+{% block content %}
+<div class="row">
+<div class="col-md-12 text-center">
+<h2><b> SMART EDUCATIONAL MARKET PLACE. </b></h2> <hr>
+</div>
+</div><br> <br>
+<div class='row'>
+<div class="col-md-12">
+<h3 class="tit"><b> New curriculum books allowed by REB </b></h3>
+
+<div id="myCarousel" class="carousel slide" data-ride="carousel">
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+    <li data-target="#myCarousel" data-slide-to="1"></li>
+    <li data-target="#myCarousel" data-slide-to="2"></li>
+  </ol>
+
+    <div class="carousel-inner" role="listbox">
+    <div class="item active">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+
+    <div class="item">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+   </div>
+</div>
+</div>
+</div>
+
+
+
+
+<div class='row'>
+<div class="col-md-12">
+<h3 class="tit"><b> Universities books allowed by REB </b></h3>
+
+<div id="myCarousel" class="carousel slide" data-ride="carousel">
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+    <li data-target="#myCarousel" data-slide-to="1"></li>
+    <li data-target="#myCarousel" data-slide-to="2"></li>
+  </ol>
+
+    <div class="carousel-inner" role="listbox">
+    <div class="item active">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+
+    <div class="item">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+
+    </div>
+   </div>
+</div>
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev" style="color: black; 
+      margin-top: 100px;">‹</a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next" style="color: black;
+      margin-top: 100px;">›</a>
+</div>
+</div>
+
+
+
+
+<div class='row'>
+<h3 class="tit"><b> Secondary school books allowed by REB </b></h3>
+
+<div id="myCarousel" class="carousel slide" data-ride="carousel">
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+    <li data-target="#myCarousel" data-slide-to="1"></li>
+    <li data-target="#myCarousel" data-slide-to="2"></li>
+  </ol>
+
+    <div class="carousel-inner" role="listbox">
+    <div class="item active">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+
+    <div class="item">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+   </div>
+
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev" style="color: black; 
+      margin-top: 100px; padding-right: 50px;">‹</a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next" style="color: black;
+      margin-top: 100px; padding-left: 50px;">›</a>
+</div>
+</div>
+
+
+
+<div class='row'>
+<h3 class="tit"><b>Primary books allowed by REB </b></h3>
+
+<div id="myCarousel" class="carousel slide" data-ride="carousel">
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+    <li data-target="#myCarousel" data-slide-to="1"></li>
+    <li data-target="#myCarousel" data-slide-to="2"></li>
+  </ol>
+
+    <div class="carousel-inner" role="listbox">
+    <div class="item active">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+
+    <div class="item">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+   </div>
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev" style="color: black; 
+      margin-top: 100px; padding-right: 50px;">‹</a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next" style="color: black;
+      margin-top: 100px; padding-left: 50px;">›</a>
+</div>
+</div>
+
+
+
+
+<div class='row'>
+<h3 class="tit"><b>Kindergarten books allowed by REB </b></h3>
+
+<div id="myCarousel" class="carousel slide" data-ride="carousel">
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+    <li data-target="#myCarousel" data-slide-to="1"></li>
+    <li data-target="#myCarousel" data-slide-to="2"></li>
+  </ol>
+
+    <div class="carousel-inner" role="listbox">
+    <div class="item active">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+
+    <div class="item">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+   </div>
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev" style="color: black; 
+      margin-top: 100px; padding-right: 50px;">‹</a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next" style="color: black;
+      margin-top: 100px; padding-left: 50px;">›</a>
+</div>
+</div>
+
+
+
+<div class='row'>
+<h3 class="tit"><b>Universities books allowed by REB </b></h3>
+
+<div id="myCarousel" class="carousel slide" data-ride="carousel">
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+    <li data-target="#myCarousel" data-slide-to="1"></li>
+    <li data-target="#myCarousel" data-slide-to="2"></li>
+  </ol>
+
+    <div class="carousel-inner" role="listbox">
+    <div class="item active">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+
+    <div class="item">
+    {% include "products/products.html" with object_list=products col_class_set="col-sm-2" %}
+    </div>
+   </div>
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev" style="color: black; 
+      margin-top: 100px; padding-right: 50px;">‹</a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next" style="color: black;
+      margin-top: 100px; padding-left: 50px;">›</a>
+</div>
+</div>
+
+
+<div class='row' >
+<h3 class="tit"><b>Featured Books</b></h3>
+{% include "products/products.html" with object_list=products2 %}
+
+</div>
+
+
+
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">THE LADDER TO SUCCESS!</h4>
+      </div>
+      <div class="modal-body">
+      <div class="row">
+
+      <div class="col-md-6">
+<div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTZzrKdmVs6DMpxAq3MuyBNznWFgjYKL5fQv92AhSY6Y_HwdP1mQ" alt="The card middle" class="img-responsive img-rounded" id="card-image" class="img-responsive"> 
+
+
+
+</div>
+
+
+      </div>
+
+      <div class="col-md-6">
+        <p>The article struck a chord, and he went on to write The Shallows, which explored this phenomenon in the detail it deserves and became a New York Times bestseller and Pulitzer finalist. Referring to the environmental book by Rachel Carson that first alerted the world to the dangers of pesticides, bringing societal upheaval and the creation of the United States’ environmental protection agency, Slate called the book a “Silent Spring” for the mind. 
+</p>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 
+ {% if request.user.is_authenticated %}
+<h1>You are logged in!</h1>
+
+	{% if queryset %}
+	<h2>Welcome Staff</h2>
+	<table class='table'>
+	{% for instance in queryset %}
+		<tr><td>{{ forloop.counter }}</td><td>{{ instance.email }}</td><td>{{ instance.full_name }}</td><td>{{ instance.timestamp|timesince }} ago</td></tr>
+		{% if instance.email == "abc@gmail.edu" %}
+		<tr><td>is equal</td></tr>
+		{% endif %}
+	{% endfor %}
+	</table>
+
+	{% endif %}
+
+ {% else %}
+<div class="row">
+
+  <div class="col-sm-3 pull-right">
+  	
+			<p class='lead text-align-center'>{{ title }}</p>
+
+			<form method='POST' action=''>{% csrf_token %}
+			{{ form|crispy }}
+
+			<input class='btn btn-primary' type='submit' value='Sign Up' />
+
+			</form>
+	</div>
+
+	<div class='col-sm-3'>
+<p class='lead text-align-center'>Django &amp; Bootstrap</p>
+			<img src='{% static "img/marketing1.jpg" %}' class='img-responsive' />
+</div>
+
+<div class='col-sm-3'>
+<p class='lead text-align-center'>Created for Starters 
+<br/>
+<span class='fa-stack fa-lg fa-5x'>
+<i class='fa fa-comment-o fa-stack-2x'></i>
+<i style='color:yellow;' class="fa fa-bolt fa-stack-1x"></i>
+
+</span>
+</p>
+
+</div>
+
+<div class='col-sm-3'>
+<p class='lead text-align-center'>Always Open Source <br/><br/>
+
+<span class="fa-stack fa-lg fa-5x">
+<i class="fa fa-circle-o-notch fa-stack-2x"></i>
+
+  <i class="fa fa-github fa-stack-1x"></i>
+</span>
+</p>
+
+
+</div>
+
+
+</div>
+{% endif %} -->
+
+{% endblock %}

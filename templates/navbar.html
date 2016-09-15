@@ -1,0 +1,112 @@
+
+
+{% load staticfiles %}
+   <!-- Static navbar -->
+
+   <style type="text/css">
+
+.navbar {
+    border-radius: 0;
+}
+
+.navbar-brand {
+    font-family: 'Satisfy', cursive;
+}
+   </style>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <b><strong><a class="navbar-brand" href="{% url 'home' %}"> <i class="fa fa-book fa-navbar-book"></i> <b>S.E.M </b></a></strong></b>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'home' %}">New Books</a></li>
+            <li><a href="{% url 'home' %}">Publishers</a></li>
+            <li><a href='{% url "categories" %}'>Categories</a></li>
+            <li><a href="{% url 'about' %}">More</a></li>
+            <!-- <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li> -->
+
+            <form class="navbar-form navbar-left" size='30' method="GET" role="search" action='{% url "products" %}'>
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Search Books... " name="q" value='{{ request.GET.q }}'>
+            </div>
+           <!--  <button type="submit" class="btn btn-default">Submit</button> -->
+          </form>
+
+          </ul>
+
+
+
+
+          <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href='{% url "cart" %}'><i class="fa fa-shopping-cart fa-navbar-cart"></i> <span id="cart-count-badge" class='badge'>{{ request.session.cart_item_count }}</span></a>
+          </li>
+
+
+          <li>
+            <a href='{% url "cart" %}'> <span id="cart-count-badge" class='badge'>239 f</span></a>
+          </li>
+          <li>
+
+         
+
+
+          {% if request.user.is_authenticated %}
+          <li><a href="{% url 'orders' %}">Orders</a></li> 
+
+          <li><a href="#">{{ user }}</a></li> 
+            <li><a href="{% url 'auth_logout' %}">Logout</a></li>
+            {% else %}
+            <li><a href="{% url 'registration_register' %}">Register</a></li>
+             {% if not request.user.is_authenticated and not "/accounts/login" in request.get_full_path %}
+              <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Login <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                                 
+                      <form class='navbar-form' method='POST' action='{% url "auth_login" %}'>{% csrf_token %}
+                        <div class='form-group'>
+                            <input type='text' class='form-control' name='username' placeholder='Username' /> 
+                        </div>
+                        <div class='form-group'>
+                            <input type='password' class='form-control' name='password' placeholder='Password' />
+                        </div>
+                        <button type='submit' class='btn btn-default btn-block'>Login</button>
+                    </form>
+                   <p class='text-center'><a href='{% url "auth_password_reset" %}'>Forgot password</a>?</p>
+
+
+                    <!-- <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li class="divider"></li>
+                    <li class="dropdown-header">Nav header</li>
+                    <li><a href="#">Separated link</a></li>
+                    <li><a href="#">One more separated link</a></li> -->
+                  </ul>
+                </li>
+                 {% endif %}
+
+            {% endif %}
+          </ul>
+
+
+
+
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+    <br><br>
+    
+
+
